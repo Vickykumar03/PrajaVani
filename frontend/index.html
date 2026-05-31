@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CivicAlert — Road & Infrastructure Reporter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Noise overlay -->
+  <div class="noise"></div>
+
+  <!-- AUTH MODAL -->
+  <div id="authModal" class="modal-overlay active">
+    <div class="modal-box">
+      <div class="modal-brand">
+        <span class="brand-icon">⚠</span>
+        <h1>CivicAlert</h1>
+        <p>Report. Track. Verify.</p>
+      </div>
+      <div class="tab-switcher">
+        <button class="tab-btn active" onclick="switchAuthTab('login')">Login</button>
+        <button class="tab-btn" onclick="switchAuthTab('register')">Register</button>
+      </div>
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required />
+        </div>
+        <div class="form-group">
+          <label>Login as</label>
+          <select id="loginRole">
+            <option value="citizen">🧑 Citizen</option>
+            <option value="municipality">🏛 Municipality Officer</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-primary">Login →</button>
+        <div id="loginError" class="form-error"></div>
+      </form>
+      <!-- Register Form -->
+      <form id="registerForm" class="auth-form hidden">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="regName" placeholder="Ramesh Kumar" required />
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="regPhone" placeholder="+91 98765 43210" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="regEmail" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="regPassword" placeholder="Min 6 characters" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Ward / Area</label>
+            <input type="text" id="regWard" placeholder="Ward 12, Kadma" />
+          </div>
+          <div class="form-group">
+            <label>Register as</label>
+            <select id="regRole">
+              <option value="citizen">🧑 Citizen</option>
+              <option value="municipality">🏛 Municipality</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Create Account →</button>
+        <div id="registerError" class="form-error"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="hidden">
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-left">
+        <span class="header-logo">⚠ CivicAlert</span>
+        <span id="headerWard" class="header-ward"></span>
+      </div>
+      <nav class="header-nav">
+        <button class="nav-btn active" onclick="switchBoard('citizen')" id="btnCitizen">
+          <span>🧑</span> Citizen Board
+        </button>
+        <button class="nav-btn" onclick="switchBoard('municipality')" id="btnMunicipality">
+          <span>🏛</span> Municipality Board
+        </button>
+      </nav>
+      <div class="header-right">
+        <span id="headerUser" class="header-user"></span>
+        <button class="btn-report" onclick="openReportModal()">+ File Report</button>
+        <button class="btn-logout" onclick="logout()">↩</button>
+      </div>
+    </header>
+
+    <!-- CITIZEN BOARD -->
+    <section id="citizenBoard" class="board active">
+      <div class="board-header">
+        <div class="board-title">
+          <h2>Complaint Board</h2>
+          <span id="citizenCount" class="count-badge">0 reports</span>
+        </div>
+        <div class="filters">
+          <div class="filter-group">
+            <label>Sort</label>
+            <div class="filter-tabs">
+              <button class="filter-tab active" onclick="setCitizenFilter('recent')" data-filter="recent">Recent</button>
+              <button class="filter-tab" onclick="setCitizenFilter('earlier')" data-filter="earlier">Earlier</button>
+              <button class="filter-tab" onclick="setCitizenFilter('long')" data-filter="long">Longest</button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label>Category</label>
+            <select id="citizenCategoryFilter" onchange="loadCitizenComplaints()">
+              <option value="">All</option>
+              <option value="pothole">Pothole</option>
+              <option value="road_damage">Road Damage</option>
+              <option value="electricity">Electricity</option>
+              <option value="water_shortage">Water</option>
+              <option value="drainage">Drainage</option>
+              <option value="streetlight">Streetlight</option>
+              <option value="garbage">Garbage</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Status</label>
+            <select id="citizenStatusFilter" onchange="loadCitizenComplaints()">
+              <option value="">All</option>
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="citizenGrid" class="complaints-grid"></div>
+      <div class="load-more-wrap">
+        <button id="citizenLoadMore" class="btn-load-more hidden" onclick="loadMoreCitizen()">Load More</button>
+      </div>
+    </section>
+
+    <!-- MUNICIPALITY BOARD -->
+    <section id="municipalityBoard" class="board hidden">
+      <!-- Stats Bar -->
+      <div class="stats-bar" id="statsBar"></div>
+      <div class="board-header">
+        <div class="board-title">
+          <h2>Municipality Dashboard</h2>
+          <span id="munCount" class="count-badge">0 reports</span>
+        </div>
+        <div class="filters">
+          <div class="filter-group">
+            <label>Sort</label>
+            <div class="filter-tabs">
+              <button class="filter-tab active" onclick="setMunFilter('recent')" data-filter="recent">Recent</button>
+              <button class="filter-tab" onclick="setMunFilter('earlier')" data-filter="earlier">Earlier</button>
+              <button class="filter-tab" onclick="setMunFilter('long')" data-filter="long">Longest</button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label>Category</label>
+            <select id="munCategoryFilter" onchange="loadMunicipalityComplaints()">
+              <option value="">All</option>
+              <option value="pothole">Pothole</option>
+              <option value="road_damage">Road Damage</option>
+              <option value="electricity">Electricity</option>
+              <option value="water_shortage">Water</option>
+              <option value="drainage">Drainage</option>
+              <option value="streetlight">Streetlight</option>
+              <option value="garbage">Garbage</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Status</label>
+            <select id="munStatusFilter" onchange="loadMunicipalityComplaints()">
+              <option value="">All</option>
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Severity</label>
+            <select id="munSeverityFilter" onchange="loadMunicipalityComplaints()">
+              <option value="">All</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="municipalityGrid" class="complaints-grid municipality-grid"></div>
+      <div class="load-more-wrap">
+        <button id="munLoadMore" class="btn-load-more hidden" onclick="loadMoreMun()">Load More</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- REPORT MODAL -->
+  <div id="reportModal" class="modal-overlay hidden">
+    <div class="modal-box report-modal">
+      <div class="modal-top">
+        <h2>File a Report</h2>
+        <button class="modal-close" onclick="closeReportModal()">✕</button>
+      </div>
+      <form id="reportForm">
+        <div class="form-row">
+          <div class="form-group flex2">
+            <label>Title *</label>
+            <input type="text" id="rTitle" placeholder="e.g. Deep pothole on Main Road near Signal" required />
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="rCategory" required>
+              <option value="">Select</option>
+              <option value="pothole">🕳 Pothole</option>
+              <option value="road_damage">🛣 Road Damage</option>
+              <option value="electricity">⚡ Electricity</option>
+              <option value="water_shortage">💧 Water Shortage</option>
+              <option value="drainage">🌊 Drainage</option>
+              <option value="streetlight">💡 Streetlight</option>
+              <option value="garbage">🗑 Garbage</option>
+              <option value="other">📌 Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Severity *</label>
+            <select id="rSeverity" required>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+              <option value="high">High</option>
+              <option value="critical">🚨 Critical</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea id="rDescription" rows="3" placeholder="Describe the issue in detail..." required></textarea>
+        </div>
+        <!-- Location -->
+        <div class="location-section">
+          <div class="location-header">
+            <label>📍 Location *</label>
+            <button type="button" class="btn-locate" onclick="getLocation()">📡 Use My Location</button>
+          </div>
+          <div id="locationStatus" class="location-status">Location not set</div>
+          <div class="form-row">
+            <div class="form-group flex2">
+              <label>Address</label>
+              <input type="text" id="rAddress" placeholder="Street address or landmark" />
+            </div>
+            <div class="form-group">
+              <label>Ward</label>
+              <input type="text" id="rWard" placeholder="Ward / Area" />
+            </div>
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" id="rCity" placeholder="City" value="Jamshedpur" />
+            </div>
+          </div>
+          <input type="hidden" id="rLat" />
+          <input type="hidden" id="rLng" />
+        </div>
+        <!-- Image Upload -->
+        <div class="form-group">
+          <label>📷 Photo Evidence</label>
+          <div class="image-upload-zone" onclick="document.getElementById('rImages').click()">
+            <span>Click to upload images (max 3)</span>
+            <input type="file" id="rImages" multiple accept="image/*" style="display:none" onchange="previewImages(event)" />
+          </div>
+          <div id="imagePreviews" class="image-previews"></div>
+        </div>
+        <div id="reportError" class="form-error"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeReportModal()">Cancel</button>
+          <button type="submit" class="btn-primary">Submit Report →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div id="detailModal" class="modal-overlay hidden">
+    <div class="modal-box detail-modal">
+      <div class="modal-top">
+        <h2 id="detailTitle">Complaint Details</h2>
+        <button class="modal-close" onclick="closeDetailModal()">✕</button>
+      </div>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
