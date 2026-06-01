@@ -1,5 +1,5 @@
 // ===== CIVIC ALERT APP =====
-const API = 'http://localhost:5000/api';
+const API = 'https://prajavani.onrender.com/api';
 
 // State
 let token = localStorage.getItem('ca_token');
