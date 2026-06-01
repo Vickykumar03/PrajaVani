@@ -1,201 +1,176 @@
-# 🚧 CivicAlert — Road & Infrastructure Issue Reporter
+# ⚠️ PrajaVani — Voice of the Citizens
 
-A full-stack civic platform where citizens report road potholes, electricity outages, water shortages, drainage problems, and more — directly to the municipality. Includes citizen work verification with green/red voting indicators.
+A full-stack civic complaint platform where citizens can report infrastructure issues directly to the municipality — with GPS location, photo evidence, and a unique **Work Verification Voting** system to hold authorities accountable.
 
----
+> "Praja" means Citizens. "Vani" means Voice. PrajaVani is exactly that. 📢
 
-## 🗂 Project Structure
-
-```
-pothole-reporter/
-├── backend/                  # Node.js + Express + MongoDB API
-│   ├── models/
-│   │   ├── User.js           # User model (citizen / municipality)
-│   │   └── Complaint.js      # Complaint model with geo + voting
-│   ├── routes/
-│   │   ├── auth.js           # Login / Register
-│   │   ├── complaints.js     # File, view, upvote, vote-work
-│   │   └── municipality.js   # Dashboard, status update, stats
-│   ├── middleware/
-│   │   └── auth.js           # JWT protect + role restriction
-│   ├── server.js             # Express app entry point
-│   ├── .env.example          # Environment variables template
-│   └── package.json
-│
-└── frontend/                 # Vanilla HTML/CSS/JS
-    ├── index.html            # Full SPA
-    ├── style.css             # Industrial dark theme
-    └── app.js                # All frontend logic
-```
+🌐 **Live Demo:** [praja-vani.vercel.app](https://praja-vani.vercel.app)
 
 ---
 
-## 🚀 Setup Instructions
+## ✨ Features
+
+### 👨‍👩‍👧 For Citizens
+- 📍 **GPS Auto-Detection** — Auto-fill location using browser geolocation + reverse geocoding
+- 📝 **File Complaints** — Title, category, severity, description, address, photo evidence
+- 📸 **Photo Upload** — Up to 3 images per complaint as evidence
+- 🗳️ **Upvote System** — Upvote complaints to raise their priority
+- ✅ **Work Verification Voting** — Vote whether the municipality actually fixed the issue
+  - 🟢 Green = majority says work is done
+  - 🔴 Red = majority says work is NOT done
+- 🔍 **Filter & Sort** — Filter by category, status; sort by recent, earlier, or longest pending
+
+### 🏛️ For Municipality Officers
+- 📊 **Municipality Dashboard** — View and manage all complaints
+- 🔄 **Update Status** — Mark complaints as Pending / In Progress / Resolved
+- 📝 **Add Official Notes** — Add remarks on each complaint
+- 🔍 **Filter by Category & Status** — Manage workload efficiently
+
+### 🔐 Authentication
+- JWT-based secure login & registration
+- Role-based access — **Citizen** and **Municipality Officer**
+- Ward/Area based account registration
+
+---
+
+## 📂 Complaint Categories
+
+| Category | Icon | Description |
+|----------|------|-------------|
+| Pothole | 🕳️ | Road potholes and surface damage |
+| Road Damage | 🛣️ | Broken roads, dividers, footpaths |
+| Electricity | ⚡ | Power outages, faulty streetlights |
+| Water | 💧 | Water shortage, pipe leakage |
+| Drainage | 🌊 | Waterlogging, blocked drains |
+| Streetlight | 💡 | Non-functioning street lights |
+| Garbage | 🗑️ | Waste disposal issues |
+| Other | 📌 | Any other civic issue |
+
+---
+
+## 🛠️ Tech Stack
+
+**Frontend**
+- Vanilla HTML5, CSS3, JavaScript (ES6+)
+- Browser Geolocation API
+- OpenStreetMap Nominatim (reverse geocoding)
+
+**Backend**
+- Node.js + Express
+- MongoDB Atlas + Mongoose
+- JWT Authentication
+- Multer (image uploads)
+
+**Deployment**
+- Frontend → Vercel
+- Backend → Render
+- Database → MongoDB Atlas
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js v18+
-- MongoDB (local or MongoDB Atlas)
+- Node.js v16+
+- MongoDB Atlas account
 
----
+### 1. Clone the repo
+```bash
+git clone https://github.com/Vickykumar03/PrajaVani.git
+cd PrajaVani
+```
 
-### 1. Backend Setup
-
+### 2. Setup Backend
 ```bash
 cd backend
-npm install
-
-# Copy env file and configure
 cp .env.example .env
-# Edit .env with your MongoDB URI and JWT secret
-
-# Start development server
-npm run dev
-
-# Or production
-npm start
+# Fill in MONGODB_URI and JWT_SECRET
+npm install
+node server.js
 ```
 
-**The API runs at:** `http://localhost:5000`
+### 3. Open Frontend
+Just open `frontend/index.html` in your browser, or use Live Server in VS Code.
 
----
-
-### 2. Frontend Setup
-
-The frontend is plain HTML/CSS/JS — no build step needed.
-
-```bash
-# Option A: Open directly in browser
-open frontend/index.html
-
-# Option B: Use VS Code Live Server (recommended)
-# Install "Live Server" extension, right-click index.html → Open with Live Server
-
-# Option C: Simple HTTP server
-cd frontend
-npx serve .
-# or
-python3 -m http.server 3000
-```
-
-> **Note:** Make sure the backend is running before opening the frontend.
-
----
-
-### 3. Environment Variables
-
-Create `backend/.env` from `.env.example`:
-
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/pothole_reporter
-JWT_SECRET=your_super_secret_jwt_key_here
-NODE_ENV=development
-```
-
-For **MongoDB Atlas**, replace MONGODB_URI with your connection string:
-```
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/pothole_reporter
+Make sure the API URL in `frontend/app.js` points to:
+```js
+const API = 'http://localhost:5000/api'; // for local
 ```
 
 ---
 
-## 🔑 Features
+## 📁 Project Structure
 
-### 👤 Citizen Board
-- **File Reports** with GPS location auto-detection (uses browser Geolocation API + OpenStreetMap reverse geocoding)
-- **Categories**: Pothole 🕳, Road Damage 🛣, Electricity ⚡, Water 💧, Drainage 🌊, Streetlight 💡, Garbage 🗑, Other
-- **Severity levels**: Low / Medium / High / Critical
-- **Upload photo evidence** (up to 3 images, stored as base64)
-- **Upvote** complaints to raise priority
-- **Work Verification Voting** on resolved complaints:
-  - ✅ Green indicator = majority says work is done
-  - ❌ Red indicator = majority says work is NOT done
-- **Filters**: Recent | Earlier | Longest Pending + Category + Status
-
-### 🏛 Municipality Dashboard (restricted access)
-- Full complaint management with **status updates**: Pending → In Progress → Resolved → Rejected
-- **Add notes** to each complaint
-- **Stats bar**: Total, Pending, In Progress, Resolved, Verified Done, Not Done
-- **Advanced filters**: Sort + Category + Status + Severity
-- See reporter contact details (name, ward, email)
-
-### 🔐 Auth
-- JWT-based authentication (7-day tokens)
-- Role-based access: `citizen` and `municipality`
-- Register with name, email, phone, ward, role
+```
+PrajaVani/
+├── backend/
+│   ├── middleware/       # Auth middleware
+│   ├── models/           # Mongoose schemas (User, Complaint)
+│   ├── routes/           # API routes (auth, complaints, municipality)
+│   └── server.js         # Express app entry point
+│
+└── frontend/
+    ├── index.html        # Main HTML file
+    ├── style.css         # Styles
+    └── app.js            # All frontend logic
+```
 
 ---
 
-## 📡 API Endpoints
+## 🔌 API Endpoints
 
-### Auth
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | Login |
-| GET | `/api/auth/me` | Get current user |
-
-### Complaints
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/complaints` | List all complaints (filterable) |
-| GET | `/api/complaints/:id` | Get single complaint |
-| POST | `/api/complaints` | File new complaint (auth) |
-| POST | `/api/complaints/:id/upvote` | Upvote (auth) |
-| POST | `/api/complaints/:id/vote-work` | Vote work done/not done (citizen) |
-| GET | `/api/complaints/my/list` | My complaints (auth) |
-
-### Municipality (restricted)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/municipality/dashboard` | All complaints with stats |
-| PATCH | `/api/municipality/:id/status` | Update status + notes |
-| GET | `/api/municipality/stats` | Aggregate statistics |
+| POST | `/api/auth/login` | Login user |
+| GET | `/api/complaints` | Get all complaints |
+| POST | `/api/complaints` | File new complaint |
+| PUT | `/api/complaints/:id/status` | Update status (municipality) |
+| POST | `/api/complaints/:id/upvote` | Upvote a complaint |
+| POST | `/api/complaints/:id/verify` | Vote on work verification |
+| GET | `/api/municipality/dashboard` | Municipality dashboard data |
+| GET | `/api/health` | Health check |
 
 ---
 
-## 🗺 Location Features
-- **Browser Geolocation API** for precise GPS coordinates
-- **OpenStreetMap Nominatim** for automatic reverse geocoding (address from coordinates)
-- Coordinates stored as GeoJSON Point in MongoDB (supports geospatial queries)
-- Direct **Google Maps link** in each complaint detail view
+## 🌍 Deployment
 
----
-
-## 🎨 Design
-- Dark industrial theme with **Bebas Neue** display font
-- Color-coded severity indicators (left border stripe)
-- Green/Red work verification status with glowing dot indicators
-- Responsive grid layout
-- Animated skeleton loading states
-
----
-
-## 📦 Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Vanilla HTML5, CSS3, JavaScript (ES6+) |
-| Backend | Node.js, Express.js |
-| Database | MongoDB with Mongoose ODM |
-| Auth | JWT (jsonwebtoken) + bcryptjs |
-| Geolocation | Browser API + OpenStreetMap Nominatim |
-| Maps | Google Maps (link out) |
-
----
-
-## 🧪 Test Accounts (create via registration)
-
-To test municipality features, register with role = `municipality`.
-
+### Backend (Render)
+1. Create Web Service on [render.com](https://render.com)
+2. Root Directory: `backend`
+3. Build Command: `npm install`
+4. Start Command: `node server.js`
+5. Environment Variables:
 ```
-# Citizen
-email: citizen@test.com
-password: test123
-role: citizen
-
-# Municipality
-email: municipal@test.com  
-password: test123
-role: municipality
+MONGODB_URI   = your atlas connection string
+JWT_SECRET    = your secret key
+PORT          = 5000
+NODE_ENV      = production
 ```
+
+### Frontend (Vercel)
+1. Import repo on [vercel.com](https://vercel.com)
+2. Root Directory: `frontend`
+3. No build command needed (static site)
+
+---
+
+## 📸 Screenshots
+
+| Login & Register | File a Report |
+|-----------------|---------------|
+| ![Login](Login.png) | ![File Report](File_Report.png) |
+
+| Complaint Board | Categories |
+|----------------|------------|
+| ![Board](Complaint_Board.png) | ![Register](Register.png) |
+
+---
+
+## 📄 License
+
+MIT License — feel free to use and modify.
+
+---
+
+Made with ❤️ by [Vicky Kumar](https://github.com/Vickykumar03)
