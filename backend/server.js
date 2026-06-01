@@ -10,7 +10,11 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? false : ['http://localhost:3000', 'http://127.0.0.1:5500'],
+  origin: [
+    'http://localhost:3000',
+    'http://127.0.0.1:5500',
+    'https://praja-vani.vercel.app',
+  ],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
